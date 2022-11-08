@@ -1,0 +1,35 @@
+*******************************************************
+ 08 / 11 / 2022
+ Génération simple (1 seul terminal connecté) 
+
+
+ Trace20221108_165214_with_id.csv - KO ?
+
+  - Longue acquisition, l'analyzer a crash 2 fois
+    (message d'erreur de dépassement de capacité ?)
+
+  - En enlevant les RNTI réservés, la première valeur 
+    capturée se trouve à environ 20/30min d'écart du 
+    début réel du lancement 	
+
+
+ Trace20221108_182416_with_id.csv - OK
+
+  - Plusieurs lancement de vidéos courtes avec 20sec
+    d'attente entre chaque (3, 3, 5, 5 puis 5 minutes) 
+    
+
+ Trace20221108_185354_with_id.csv - KO
+
+  - Appel vidéo d'environ 6 minutes sur Messenger 
+    émis par le terminal connecté (de 18h54 à 19h 
+    environ)
+
+  - Le terminal recevant l'appel n'est pas connecté
+    à l'amarisoft
+
+  - Le fichier ne contient que des mesures sur les 
+    RNTI réservés : mauvaise manip ??
+
+*******************************************************
+
