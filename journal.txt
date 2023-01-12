@@ -1,3 +1,15 @@
+Nombre de mesures - Update 11/01
+(1 mesure  = 1 ligne d'un csv) 
+
+{
+'skype': 		   27473821, 
+'messenger': 	 9036351, 
+'twitch': 		   7641533, 
+'youtube': 		   477018, 
+'noise': 		     403925, 
+'pure_noise': 	 187914 
+}
+
 *******************************************************
  08 / 11 / 2022
  Génération simple (1 seul terminal connecté) 
