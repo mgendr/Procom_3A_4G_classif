@@ -5,3 +5,15 @@ Statistical_analysis/dataset_images.rar
 dataset_images.rar
 Statistical_analysis/logs
 Statistical_analysis/tmp
+
+
+*.rar
+*.zip
+__pycache__/
+
+1_Format_donnees/.ipynb_checkpoints/
+1_Format_donnees/__pycache__/
+
+3_Classification_Model/.ipynb_checkpoints/
+
+1_Format_donnees/.ipynb_checkpoints/Data_aggregated-checkpoint.ipynb
