@@ -15,5 +15,6 @@ __pycache__/
 1_Format_donnees/__pycache__/
 
 3_Classification_Model/.ipynb_checkpoints/
+3_Classification_Model/tmp/
 
 1_Format_donnees/.ipynb_checkpoints/Data_aggregated-checkpoint.ipynb
