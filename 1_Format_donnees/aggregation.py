@@ -50,7 +50,7 @@ def load_merge_datasets(path_directory) :
 
 # ______Format in windows : ______
 
-def reformat_data(global_data, length_value = DEFAULT_LENGTH_Value) :
+def reformat_data(global_data, length_value = DEFAULT_LENGTH_Value, step = 1) :
     #  split the data in windows of 60s
     # return a dictionnary : in the keys we have a global unique ID
     # in the values, we have the TBS values and the label
@@ -64,9 +64,18 @@ def reformat_data(global_data, length_value = DEFAULT_LENGTH_Value) :
         current_data = current_data.resample('s').mean().interpolate()
         if len(current_data)>=length_value :
             
-            for i in range(len(current_data)-length_value+1) :
-                    current_window = current_data.iloc[i:i+length_value]      
-                    reformated_data[f"{key}_{i}"]=(current_window.TBS_1, current_window.TBS_2,label)
+            count_seq_to_gen = int(np.floor((len(current_data)-length_value)/step))+1
+            try :
+            
+                for i in range(count_seq_to_gen) :
+                    current_window = current_data.iloc[i*step:i*step+length_value]      
+                    reformated_data[f"{key}_{i*step}"]=(current_window.TBS_1, current_window.TBS_2,label)
+            except :
+                print(f"count_seq_to_gen {count_seq_to_gen}")
+                print(f"len(current_data) {len(current_data)}")
+                print(f"length_value {length_value}")
+                print(f"step {step}")
+                print(a)
                     
     return reformated_data
 
@@ -81,9 +90,9 @@ def adapt_to_dataframe(data) :
     return futur_df
 
 
-def load_and_preprocess_agg_window(directory_data_test, length_value = DEFAULT_LENGTH_Value ) :
+def load_and_preprocess_agg_window(directory_data_test, length_value = DEFAULT_LENGTH_Value, step = 1 ) :
     
-    dico = reformat_data(load_merge_datasets(directory_data_test),length_value = length_value )
+    dico = reformat_data(load_merge_datasets(directory_data_test),length_value = length_value, step = step )
     return adapt_to_dataframe(dico)
 
 # ______Format in metrics : ______

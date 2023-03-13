@@ -2,7 +2,8 @@ from sklearn.metrics import confusion_matrix
 import numpy as np
 import matplotlib.pyplot as plt
 import itertools
-
+from sklearn.metrics import balanced_accuracy_score
+from sklearn.metrics import precision_recall_fscore_support
 
 
 def plot_confusion_matrix_reduced(cm, classes, normalize=False, title='confusion matrix', cmap=plt.cm.Blues):
@@ -45,12 +46,20 @@ def plot_confusion_matrix(true_labels,preds_labels):
 
     plt.show()
         
-        
-        
-def compute_metrics(true_labels,preds_labels) :
-    pass
-        
-        
+
+
+def get_scores(y_true, y_pred):
+    res = {}
+    res["Accuracy"] = balanced_accuracy_score(y_true, y_pred)
+    
+    precision,recall, fbeta_scor, support = precision_recall_fscore_support(y_true, y_pred,beta=1, average='weighted')
+    # beta = 1 for the F1_score
+    res["Precision"] = precision
+    res["Recall"] = recall
+    res["F1_Score"] = fbeta_scor
+    res["support"] = support
+    
+    return res 
         
         
         
