@@ -81,7 +81,7 @@ def reformat_data(global_data, length_value = DEFAULT_LENGTH_Value, step = 1) :
 
 def adapt_to_dataframe(data) :
     # transforms the dic in df
-
+    
     futur_df = dict([(key,list(value[0].values)+list(value[1].values) + [value[2]]) for key, value in data.items()])
     futur_df = pd.DataFrame(futur_df).T
     
@@ -173,7 +173,7 @@ def apply_simple_model(model, data, metrics,added_name ="") :
     
     return metrics
 
-def split_in_windows(data, window_size, step , min_duration = 30):
+def split_in_windows_duration(data, window_size, step , min_duration = 30):
     new_data = {}
     
     for key, value in tqdm(data.items()):
@@ -206,10 +206,6 @@ def split_in_windows(data, window_size, step , min_duration = 30):
     return new_data
 
 
-            
-
-    
-
 def load_and_preprocess_agg_metrics(directory_data_test, window_size = None, step = 1, min_duration = 30) :
     
     print( "Load datasets...")
@@ -223,7 +219,7 @@ def load_and_preprocess_agg_metrics(directory_data_test, window_size = None, ste
     else :
         print("Splitting the data in windows...")
         time.sleep(.1)
-        splitted_dataset = split_in_windows(datasets, window_size, step, min_duration = min_duration )
+        splitted_dataset = split_in_windows_duration(datasets, window_size, step, min_duration = min_duration )
         print("Computing metrics and statistics...")
         time.sleep(.1)
         data = compute_metrics(splitted_dataset)
@@ -259,7 +255,6 @@ class Scaler_Metrics:
         x = self.scaler.transform(x_unscaled)
 
         new_df = pd.DataFrame(x,columns = list(metrics_data.columns[:-1]))
-        print(y)
         new_df["label"] = y.values
         new_df["id"] = metrics_data.index
         new_df.set_index("id", drop = True, inplace = True)
@@ -268,8 +263,28 @@ class Scaler_Metrics:
         
     
 
+def load_and_preprocess_raw_data(directory_data, window_size = 60) :
+    print( "Load datasets...")
+    datasets = load_merge_datasets(directory_data)
 
+    splitted_dataset = split_in_windows_raw(datasets, window_size)
+    
+    
+    return adapt_to_dataframe(splitted_dataset)
 
+def split_in_windows_raw(data, window_size):
+    new_data = {}
+    
+    for key, value in tqdm(data.items()):
+        label = value[2]
+        begin_id = key
+        TBS_1, TBS_2 = value[0],value[1]
+
+        if len(TBS_1)> window_size :
+        
+            new_data[key]=(TBS_1.iloc[0:window_size], TBS_2.iloc[0:window_size], label)
+        
+    return new_data
 
 
 
