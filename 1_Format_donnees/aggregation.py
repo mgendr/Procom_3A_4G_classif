@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
-
+import time
 import numpy as np
 
 from tqdm import tqdm
@@ -91,8 +91,11 @@ def adapt_to_dataframe(data) :
 
 
 def load_and_preprocess_agg_window(directory_data_test, length_value = DEFAULT_LENGTH_Value, step = 1 ) :
+    print( "Load datasets...")
+    datasets = load_merge_datasets(directory_data_test)
     
-    dico = reformat_data(load_merge_datasets(directory_data_test),length_value = length_value, step = step )
+    print("Reformat...")
+    dico = reformat_data(datasets,length_value = length_value, step = step )
     return adapt_to_dataframe(dico)
 
 # ______Format in metrics : ______
@@ -102,7 +105,7 @@ def compute_metrics(data) :
     list_rows = []
     for key,value in tqdm(data.items()) : # Pour chaque time serie
         
-        new_row = first_layer(value[0],value[1])
+        new_row = first_layer(value[0],value[1])# on donne TBS_1 et TBS_2 qui correspondent à uplink et downlink
         
         new_row["label"] = value[2]
         new_row["id"] = key
@@ -170,13 +173,64 @@ def apply_simple_model(model, data, metrics,added_name ="") :
     
     return metrics
 
+def split_in_windows(data, window_size, step , min_duration = 30):
+    new_data = {}
+    
+    for key, value in tqdm(data.items()):
+        label = value[2]
+        begin_id = key
+        TBS_1, TBS_2 = value[0],value[1]
+        merged = pd.concat([TBS_1, TBS_2], axis = 1)
+
+        
+        
+        total_duration = (merged.index[-1] - merged.index[0]).seconds
+        
+      
+        
+        if total_duration>=min_duration :
+     
+            count_seq_to_gen = int(np.floor((total_duration-window_size)/step))+1
+
+            
+            for i in range(count_seq_to_gen) :
+                beginning = merged.index[0]+pd.Timedelta(step*i, "s")
+                end = merged.index[0] + pd.Timedelta(step*i + window_size, "s")
+                
+                current_window = merged.iloc[(merged.index >=beginning) & (merged.index<end)]  
+                new_data[f"{key}_{i*step}"]=(current_window.TBS_1, current_window.TBS_2,label)
+           
+        
+
+        
+    return new_data
 
 
-def load_and_preprocess_agg_metrics(directory_data_test) :
+            
 
-    data = compute_metrics(load_merge_datasets(directory_data_test))
+    
+
+def load_and_preprocess_agg_metrics(directory_data_test, window_size = None, step = 1, min_duration = 30) :
+    
+    print( "Load datasets...")
+    datasets = load_merge_datasets(directory_data_test)
+    
+    if window_size is None :
+        print("Computing metrics and statistics...")
+        time.sleep(.1)
+        data = compute_metrics(datasets)
+        
+    else :
+        print("Splitting the data in windows...")
+        time.sleep(.1)
+        splitted_dataset = split_in_windows(datasets, window_size, step, min_duration = min_duration )
+        print("Computing metrics and statistics...")
+        time.sleep(.1)
+        data = compute_metrics(splitted_dataset)
     
     return data
+
+
 
 
 class Scaler_Metrics:

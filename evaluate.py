@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import itertools
 from sklearn.metrics import balanced_accuracy_score
 from sklearn.metrics import precision_recall_fscore_support
+import pandas as pd
 
 
 def plot_confusion_matrix_reduced(cm, classes, normalize=False, title='confusion matrix', cmap=plt.cm.Blues):
@@ -63,5 +64,14 @@ def get_scores(y_true, y_pred):
         
         
         
-        
+def plot_feature_importance(rf, columns):
+    importances = rf.feature_importances_
+    std = np.std([tree.feature_importances_ for tree in rf.estimators_], axis=0)
+    forest_importances = pd.Series(importances, index=columns)
+
+    fig, ax = plt.subplots()
+    forest_importances.plot.bar(yerr=std, ax=ax)
+    ax.set_title("Feature importances using MDI")
+    ax.set_ylabel("Mean decrease in impurity")
+    fig.tight_layout()
     
