@@ -24,6 +24,13 @@ def format_data(filename, global_data):
     # in the values, we have the TBS values and the label
     data = pd.read_csv(filename)
     data["TBS_2"] = data["TBS_2"].replace(to_replace = -2, value = 0)
+    data["TBS_sum"] = data["TBS_2"] + data["TBS_1"]
+    
+    
+    data["TBS_up"] = data.apply(lambda x : x["TBS_sum"] if x["format"] == 0 else 0. , axis = 1 )
+    data["TBS_down"] = data.apply(lambda x : x["TBS_sum"] if x["format"] != 0 else 0. , axis = 1 )
+
+    #data.drop(colmns = ["TBS_1", "TBS_2", "TBS_sum"], inplace = True)
     data["label"] = data["label"].replace(to_replace = "pure_noise", value = "noise")
     data.set_index(pd.to_datetime(data.Time), inplace=True)
     
@@ -32,7 +39,7 @@ def format_data(filename, global_data):
     for val in tqdm(data.connection_id.unique()): # for each unique RNTI 
         current_data = data[data.connection_id==val] # We only keep the corresponding values
         label = current_data.label.value_counts(sort = True, ascending =False).index[0]# The label is the most frequent label
-        global_data[f"{id_acquis}_{val}"]=(current_data.TBS_1, current_data.TBS_2,label) # We save TBS1, TBS2 and the label
+        global_data[f"{id_acquis}_{val}"]=(current_data.TBS_down, current_data.TBS_up,label) # We save TBS1, TBS2 and the label
         # With the key id_file + id_RNTI
     
     return global_data
@@ -57,9 +64,9 @@ def reformat_data(global_data, length_value = DEFAULT_LENGTH_Value, step = 1) :
     reformated_data = {}
 
     for key, value in tqdm(global_data.items()) :
-        TBS_1, TBS_2, label = value
+        TBS_up, TBS_down, label = value
        
-        current_data = pd.concat([TBS_1, TBS_2],axis=1)
+        current_data = pd.concat([TBS_up, TBS_down],axis=1)
  
         current_data = current_data.resample('s').mean().interpolate()
         if len(current_data)>=length_value :
@@ -69,7 +76,7 @@ def reformat_data(global_data, length_value = DEFAULT_LENGTH_Value, step = 1) :
             
                 for i in range(count_seq_to_gen) :
                     current_window = current_data.iloc[i*step:i*step+length_value]      
-                    reformated_data[f"{key}_{i*step}"]=(current_window.TBS_1, current_window.TBS_2,label)
+                    reformated_data[f"{key}_{i*step}"]=(current_window.TBS_up, current_window.TBS_down,label)
             except :
                 print(f"count_seq_to_gen {count_seq_to_gen}")
                 print(f"len(current_data) {len(current_data)}")
@@ -105,7 +112,7 @@ def compute_metrics(data) :
     list_rows = []
     for key,value in tqdm(data.items()) : # Pour chaque time serie
         
-        new_row = first_layer(value[0],value[1])# on donne TBS_1 et TBS_2 qui correspondent à uplink et downlink
+        new_row = first_layer(value[0],value[1])# on donne TBS_down et TBS_up qui correspondent à uplink et downlink
         
         new_row["label"] = value[2]
         new_row["id"] = key
@@ -117,18 +124,18 @@ def compute_metrics(data) :
     # return concatenation
     return data_final
 
-def first_layer(TBS_1,TBS_2):
+def first_layer(TBS_down,TBS_up):
     metrics = {}
-    cum_TBS_1 = TBS_1.cumsum()
-    cum_TBS_2 = TBS_2.cumsum()
+    cum_TBS_down = TBS_down.cumsum()
+    cum_TBS_up = TBS_up.cumsum()
     # apply scaler
     
     # Here we apply models on cumulated sum
     models = ["reg_lin" ]#, "reg_iso"] #, "reg_pol"]
     
     for model in models : 
-        metrics = apply_simple_model(model, cum_TBS_1, metrics,added_name ="TBS_1")
-        metrics = apply_simple_model(model, cum_TBS_2, metrics,added_name ="TBS_2")
+        metrics = apply_simple_model(model, cum_TBS_down, metrics,added_name ="TBS_down")
+        metrics = apply_simple_model(model, cum_TBS_up, metrics,added_name ="TBS_up")
         
     # Here we can measure other metrics on none cumulated sum
     
@@ -138,13 +145,13 @@ def first_layer(TBS_1,TBS_2):
     to_get = {"min" : "p0", "10%" : "p10", "25%" : "p25", "50%" : "p50", "75%" : "p75",
               "90%" : "p90", "max" : "p100", "mean" : "mean", "std" : "std"}
     
-    stats_TBS_1 = TBS_1.describe(percentiles=percentiles)
+    stats_TBS_down = TBS_down.describe(percentiles=percentiles)
     for desc_name, new_name in to_get.items() :
-        metrics[f"{new_name}_TBS_1"] =  stats_TBS_1.loc[desc_name]
+        metrics[f"{new_name}_TBS_down"] =  stats_TBS_down.loc[desc_name]
         
-    stats_TBS_2 = TBS_2.describe(percentiles=percentiles)
+    stats_TBS_up = TBS_up.describe(percentiles=percentiles)
     for desc_name, new_name in to_get.items() :
-        metrics[f"{new_name}_TBS_2"] =  stats_TBS_2.loc[desc_name]
+        metrics[f"{new_name}_TBS_up"] =  stats_TBS_up.loc[desc_name]
         
         
     # add duration
@@ -179,8 +186,8 @@ def split_in_windows_duration(data, window_size, step , min_duration = 30):
     for key, value in tqdm(data.items()):
         label = value[2]
         begin_id = key
-        TBS_1, TBS_2 = value[0],value[1]
-        merged = pd.concat([TBS_1, TBS_2], axis = 1)
+        TBS_down, TBS_up = value[0],value[1]
+        merged = pd.concat([TBS_down, TBS_up], axis = 1)
 
         
         
@@ -198,7 +205,7 @@ def split_in_windows_duration(data, window_size, step , min_duration = 30):
                 end = merged.index[0] + pd.Timedelta(step*i + window_size, "s")
                 
                 current_window = merged.iloc[(merged.index >=beginning) & (merged.index<end)]  
-                new_data[f"{key}_{i*step}"]=(current_window.TBS_1, current_window.TBS_2,label)
+                new_data[f"{key}_{i*step}"]=(current_window.TBS_down, current_window.TBS_up,label)
            
         
 
@@ -278,11 +285,11 @@ def split_in_windows_raw(data, window_size):
     for key, value in tqdm(data.items()):
         label = value[2]
         begin_id = key
-        TBS_1, TBS_2 = value[0],value[1]
+        TBS_down, TBS_up = value[0],value[1]
 
-        if len(TBS_1)> window_size :
+        if len(TBS_down)> window_size :
         
-            new_data[key]=(TBS_1.iloc[0:window_size], TBS_2.iloc[0:window_size], label)
+            new_data[key]=(TBS_down.iloc[0:window_size], TBS_up.iloc[0:window_size], label)
         
     return new_data
 
