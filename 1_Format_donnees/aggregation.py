@@ -165,6 +165,15 @@ def first_layer(TBS):
         stats_TBS = TBS.describe(percentiles=percentiles)
         for desc_name, new_name in to_get.items() :
             metrics[f"{new_name}_{TBS.name}"] =  stats_TBS.loc[desc_name]
+
+    metrics[f"sum_{TBS.name}"] = TBS.sum()
+
+    if len(TBS)>1 :
+        duration = (TBS.index[-1]-TBS.index[0]).total_seconds()
+        metrics[f"mean_per_time_{TBS.name}"] = TBS.sum()/duration
+    else :
+        metrics[f"mean_per_time_{TBS.name}"] = 0
+
         
      
         
