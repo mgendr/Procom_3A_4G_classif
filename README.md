@@ -5,7 +5,7 @@
 Les mesures sont importés dans le dossier Mesures. Ce dossier est séparé en 2 dossier distincts : Train et test afin de séparer les datasets.
 
 
-Le dossier 1_Format_donnees contient les notebooks que nous avons mis en place afin de réaliser notre première expérience concernant les formats des données.
+Le dossier 1_Format_donnees contient les notebooks que nous avons mis en place afin de réaliser notre première expérience concernant les formats des données. Il contient aussi un fichier aggregation.py qui contient un ensemble de fonctions utilisés dans nos expériences. Le but étant d'avoir des notebook lisibles.
 
 Le dossier 3_Classification_Model contient les notebooks relatif à la comparaison des modèles de classification.
 
