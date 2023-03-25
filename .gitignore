@@ -1,10 +1,10 @@
 Mesures
-Statistical_analysis/.ipynb_checkpoints
+Experimental_Analysis/.ipynb_checkpoints
 dataset_images
-Statistical_analysis/dataset_images.rar
+Experimental_Analysis/dataset_images.rar
 dataset_images.rar
-Statistical_analysis/logs
-Statistical_analysis/tmp
+Experimental_Analysis/logs
+Experimental_Analysis/tmp
 
 
 *.rar
@@ -19,5 +19,6 @@ __pycache__/
 
 1_Format_donnees/.ipynb_checkpoints/Data_aggregated-checkpoint.ipynb
 
+1_Format_donnees/.ipynb_checkpoints/Data_aggregated-checkpoint.ipynb
 1_Format_donnees/.ipynb_checkpoints/Data_aggregated-checkpoint.ipynb
 1_Format_donnees/.ipynb_checkpoints/Data_aggregated-checkpoint.ipynb
