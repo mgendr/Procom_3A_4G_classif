@@ -17,5 +17,5 @@ Le fichier evaluate.py contient des scripts permettant l'évaluation d'un modèl
 
 ## Mesures #
 
-Le dossier 0_Process_and_Label_data contient 2 scripts permettant de pré-traiter et labelliser les données 4G et WiFi (fichiers csv des données décodées sous la forme `TraceYYYYMMDD_HHMMSS_with_id.csv` pour la 4G, fichiers de la forme `WifiYYYYMMDD_*.csv` pour les captures WiFi).
+Le dossier 0_Process_and_Label_data contient 2 scripts permettant de pré-traiter et labelliser les données 4G et WiFi (fichiers csv des données décodées sous la forme `TraceYYYYMMDD_HHMMSS_with_id.csv` pour la 4G, fichiers de la forme `WifiYYYYMMDD_*.csv` pour les captures WiFi). Le dataset complet est disponible sur Kaggle : https://www.kaggle.com/datasets/testprocom/procom-4g-classification.
 
